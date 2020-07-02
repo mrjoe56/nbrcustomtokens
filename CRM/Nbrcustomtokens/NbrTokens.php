@@ -13,8 +13,6 @@ class CRM_Nbrcustomtokens_NbrTokens {
   /** Method to process the tokens hook  */
   public function tokens(&$tokens) {
 
-    Civi::log()->debug('tokens hook 2');
-
     $tokens['NBR_Stage_2'] = [
       'NBR_Stage_2.study_number' => 'Study number',
       'NBR_Stage_2.study_short_name' => 'Study short name',   # internal token name and token label shown to user
