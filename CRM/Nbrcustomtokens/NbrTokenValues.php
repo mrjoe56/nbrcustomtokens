@@ -17,8 +17,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
 
       foreach ($cids as $cid) {
 
-        Civi::log()->debug('$cid = '.$cid);
-
         $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer"); # get case id from url or $values array
 
         if (!$caseId) {
@@ -35,7 +33,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
           $params = [1 => [$cid, 'Integer'], 2 => [$caseId, 'Integer'],];
           $query = 'select sd.nsd_study_number as study_number, sd.nsd_study_long_name as study_long_name, camp.name as study_short_name, rcont.display_name as researcher,
             radd.street_address as r_addr0, radd.supplemental_address_1 as r_addr1, radd.supplemental_address_2 as r_addr2, radd.supplemental_address_3 as r_addr3,
-            radd.postal_code as r_pcode, email.email as r_email, pcont.display_name as investigator
+            radd.postal_code as r_pcode, email.email as r_email, pcont.display_name as investigator, sd.nsd_scientific_info as study_text
             from civicrm_case_contact cc
             join civicrm_case cas on cc.case_id = cas.id
             left join civicrm_value_nbr_participation_data pd on cc.case_id = pd.entity_id
@@ -60,6 +58,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
             $values[$cid]['NBR_Stage_2.researcher_address3'] = $dao->r_addr3;
             $values[$cid]['NBR_Stage_2.researcher_pcode'] = $dao->r_pcode;
             $values[$cid]['NBR_Stage_2.researcher_email'] = $dao->r_email;
+            $values[$cid]['NBR_Stage_2.study_text'] = $dao->study_text;
           }
 
         }
