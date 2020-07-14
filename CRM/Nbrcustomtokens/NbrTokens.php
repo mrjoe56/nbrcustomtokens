@@ -26,9 +26,8 @@ class CRM_Nbrcustomtokens_NbrTokens {
       'NBR_Stage_2.researcher_pcode' => 'Researcher postcode',
       'NBR_Stage_2.researcher_email' => 'Researcher email',
       'NBR_Stage_2.study_text' => 'Study text',
-
-
     ];
+
   }
 }
 
