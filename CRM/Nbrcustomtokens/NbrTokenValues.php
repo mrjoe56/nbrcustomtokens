@@ -67,6 +67,17 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
 
     }
 
+    if (isset($tokens['NBR_Contact'])) {
+      $params = [1 => [$cid, 'Integer']];
+      $query = "select nva_participant_id, nva_bioresource_id from civicrm_value_nihr_volunteer_ids where entity_id = %1";
+      $dao = CRM_Core_DAO::executeQuery($query, $params);
+      if ($dao->fetch()) {
+        $values[$cid]['NBR_Contact.participant_id'] = $dao->nva_participant_id;
+        $values[$cid]['NBR_Contact.bioresource_id'] = $dao->nva_bioresource_id;
+      }
+
+    }
+
   }
 
 }
