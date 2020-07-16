@@ -28,6 +28,12 @@ class CRM_Nbrcustomtokens_NbrTokens {
       'NBR_Stage_2.study_text' => 'Study text',
     ];
 
+
+    $tokens['NBR_Contact'] = [
+      'NBR_Contact.participant_id' => 'Participant ID',
+      'NBR_Contact.bioresource_id' => 'Bioresource ID',
+    ];
+
   }
 }
 
