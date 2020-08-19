@@ -13,44 +13,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
 
   public function tokenValues(&$values, $cids, $job, $tokens, $context) {
 
-Civi::log()->debug('tokenValues - 3 $context : '.$context);
-
-    foreach ($values as $key => $value) {
-      if (is_array($value)) {
-        Civi::log()->debug('$key : '.$key.'  - Array : ');
-        foreach ($value as $k => $v) {
-          Civi::log()->debug('$k : '.$k.'  $v : '.$v);
-        }
-      }
-      else {
-        Civi::log()->debug('$key : ' . $key . '  $value : ' . $value);
-      }
-    }
-
- /*
-
-    foreach ($tokens as $key => $value) {
-      if (is_array($value)) {
-        Civi::log()->debug('$key : '.$key.'  - Array : ');
-        foreach ($value as $k => $v) {
-          Civi::log()->debug('$ : '.$k.'  $v : '.$v);
-        }
-      }
-      else {
-        Civi::log()->debug('$key : ' . $key . '  $value : ' . $value);
-      }
-    }
-    */
-   # if (isset($tokens['activity'])) {
-   #   if (!is_array($cids)){$cids = [$cids];}
-   #   foreach ($cids as $cid) {
-   #     Civi::log()->debug('dtm value : '.$tokens[$cid]['activity.activity_date_time']);
-   #     Civi::log()->debug('$array : '.implode('~', $tokens[$cid]['activity']));
-   #   }
-   # }
-
-
-
     if (isset($tokens['NBR_Stage_2'])) {
 
       if (!is_array($cids)){$cids = [$cids];}
