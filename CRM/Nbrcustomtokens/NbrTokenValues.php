@@ -69,10 +69,10 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
 
   public function setStage2TokenValues(&$values, $pid, $caseId){
     $params = [1 => [$pid, 'Integer'], 2 => [$caseId, 'Integer'],];
-    $query = 'select sd.nsd_study_number as study_number, sd.nsd_study_long_name as study_long_name, camp.name as study_short_name, rcont.display_name as researcher,
+    $query = "select sd.nsd_study_number as study_number, sd.nsd_study_long_name as study_long_name, camp.name as study_short_name, rcont.display_name as researcher,
             radd.street_address as r_addr0, radd.supplemental_address_1 as r_addr1, radd.supplemental_address_2 as r_addr2, radd.supplemental_address_3 as r_addr3,
             radd.postal_code as r_pcode, email.email as r_email, pcont.display_name as investigator, sd.nsd_scientific_info as study_text,  sd.nsd_ethics_number as study_ethics,
-            sd.nsd_lay_summary as study_summary
+            sd.nsd_lay_summary as study_summary, pd.nvpd_study_participant_id as study_participant_id
             from civicrm_case_contact cc
             join civicrm_case cas on cc.case_id = cas.id
             left join civicrm_value_nbr_participation_data pd on cc.case_id = pd.entity_id
@@ -82,7 +82,8 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
             left join civicrm_contact pcont on sd.nsd_principal_investigator = pcont.id
             left join civicrm_address radd on sd.nsd_researcher = radd.contact_id
             left join civicrm_email email on radd.contact_id = email.contact_id
-            where cc.contact_id = %1 and cc.case_id = %2 and cas.is_deleted = 0 limit 1';
+            where coalesce(pd.nvpd_study_participant_id, '') != ''
+            and cc.contact_id = %1 and cc.case_id = %2 and cas.is_deleted = 0 limit 1";
     $dao = CRM_Core_DAO::executeQuery($query, $params);
     if ($dao->fetch()) {
       $values[$pid]['NBR_Stage_2.study_number'] = $dao->study_number;
@@ -99,6 +100,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
       $values[$pid]['NBR_Stage_2.study_text'] = $dao->study_text;
       $values[$pid]['NBR_Stage_2.study_ethics_number'] = $dao->study_ethics;
       $values[$pid]['NBR_Stage_2.study_lay_summary'] = $dao->study_summary;
+      $values[$pid]['NBR_Stage_2.study_participant_id'] = $dao->study_participant_id;
     }
   }
 
