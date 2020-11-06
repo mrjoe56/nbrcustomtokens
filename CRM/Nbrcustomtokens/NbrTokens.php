@@ -14,8 +14,8 @@ class CRM_Nbrcustomtokens_NbrTokens {
   public function tokens(&$tokens) {
 
     $tokens['NBR_Stage_2'] = [
-      'NBR_Stage_2.study_number' => 'Study number',
-      'NBR_Stage_2.study_short_name' => 'Study short name',   # internal token name and token label shown to user
+      'NBR_Stage_2.study_number' => 'Study number',                          # internal token name and token label shown to user
+      'NBR_Stage_2.study_short_name' => 'Study short name',
       'NBR_Stage_2.study_long_name' => 'Study long name',
       'NBR_Stage_2.investigator_name' => 'Study PI',
       'NBR_Stage_2.researcher_name' => 'Study researcher',
@@ -27,6 +27,8 @@ class CRM_Nbrcustomtokens_NbrTokens {
       'NBR_Stage_2.researcher_email' => 'Researcher email',
       'NBR_Stage_2.study_text' => 'Study text',
       'NBR_Stage_2.study_ethics_number' => 'Study ethics No.',
+      'NBR_Stage_2.study_lay_summary' => 'Study Lay summary.',
+      'NBR_Stage_2.study_participant_id' => 'Study Participant ID.',
     ];
 
 
