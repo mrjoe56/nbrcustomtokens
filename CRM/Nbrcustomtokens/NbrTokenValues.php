@@ -13,7 +13,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
   public function tokenValues(&$values, $pids, $job, $tokens, $context) {
     if (!empty($job)) {                                                                              # job id exists so bulk mail
       $params = [1 => [$job, 'Integer']];
-      $query = "select r.contact_id as pid, m.study_id as study_id, MJ.mailing_id as mailing_id
+      $query = "select r.contact_id as pid, m.study_id as study_id, mj.mailing_id as mailing_id
                 from civicrm_mailing_job mj, civicrm_nbr_mailing m, civicrm_mailing_recipients r
                 where m.mailing_id = mj.mailing_id and m.mailing_id = r.mailing_id
                 and mj.id = %1";
