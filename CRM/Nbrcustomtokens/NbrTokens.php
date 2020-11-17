@@ -38,5 +38,22 @@ class CRM_Nbrcustomtokens_NbrTokens {
     ];
 
   }
+
+  function array_log($array){
+    foreach ($array as $key => $value) {
+      if (is_array($value)) {
+        Civi::log()->debug('$key : '.$key.'  - Array : ');
+        foreach ($value as $k => $v) {
+          Civi::log()->debug('  $k : '.$k.'  $v : '.$v);
+        }
+      }
+      else {
+        Civi::log()->debug('$key : ' . $key . '  $value : ' . $value);
+      }
+    }
+
+
+  }
+
 }
 

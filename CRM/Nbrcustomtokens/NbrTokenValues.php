@@ -11,9 +11,10 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
   /** Method to process the token values hook */
 
   public function tokenValues(&$values, $pids, $job, $tokens, $context) {
-    if (!empty($job)) {                                                                              # job id exists so bulk mail
+
+    if (!empty($job)) {                                                                              # BULK EMAIL (event queue job id exists)
       $params = [1 => [$job, 'Integer']];
-      $query = "select r.contact_id as pid, m.study_id as study_id, MJ.mailing_id as mailing_id
+      $query = "select r.contact_id as pid, m.study_id as study_id, mj.mailing_id as mailing_id
                 from civicrm_mailing_job mj, civicrm_nbr_mailing m, civicrm_mailing_recipients r
                 where m.mailing_id = mj.mailing_id and m.mailing_id = r.mailing_id
                 and mj.id = %1";
@@ -30,18 +31,22 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
         }
       }
     }
-    else {                                                                                          # non-bulk email
+    else {                                                                                          # NOT BULK EMAIL
       if (!is_array($pids)){
         $pids = [$pids];
       }
       foreach ($pids as $pid) {                                                                     # for each pid
-        $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");                            #  get case id from url ..
-        if (!$caseId) {                                                                             #  or $values array ..
-          if (isset($values[$pid]['case_id'])) {
-            $caseId = $values[$pid]['case_id'];
-          }
-          elseif (isset($values[$pid]['case.id'])) {
-            $caseId = $values[$pid]['case.id'];
+        if ($context=='CRM_Contact_Form_Task_PDFLetterCommon') {                                    #  if context is 'print/merge document'
+          $caseId = CRM_Nihrbackbone_NbrVolunteerCase::getActiveParticipationCaseId($_REQUEST['study_id'], $pid);
+        }                                                                                           #   get case id from request.study_id
+        else {                                                                                      #  else
+          $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");                          #   get case id from url ..
+          if (!$caseId) {                                                                           #   or $values array ..
+            if (isset($values[$pid]['case_id'])) {
+              $caseId = $values[$pid]['case_id'];
+            } elseif (isset($values[$pid]['case.id'])) {
+              $caseId = $values[$pid]['case.id'];
+            }
           }
         }
         if ($caseId) {
