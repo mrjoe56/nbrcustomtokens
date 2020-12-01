@@ -28,6 +28,7 @@ class CRM_Nbrcustomtokens_NbrTokens {
       'NBR_Stage_2.study_text' => 'Study text',
       'NBR_Stage_2.study_ethics_number' => 'Study ethics No.',
       'NBR_Stage_2.study_lay_summary' => 'Study Lay summary.',
+      'NBR_Stage_2.study_participant_id' => 'Study Participant ID.',
     ];
 
 
@@ -36,6 +37,6 @@ class CRM_Nbrcustomtokens_NbrTokens {
       'NBR_Contact.bioresource_id' => 'Bioresource ID',
     ];
 
-  }   
+  }
 }
 
