@@ -11,7 +11,8 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
   /** Method to process the token values hook */
 
   public function tokenValues(&$values, $pids, $job, $tokens, $context) {
-    if (!empty($job)) {                                                                              # job id exists so bulk mail
+
+    if (!empty($job)) {                                                                              # BULK EMAIL (event queue job id exists)
       $params = [1 => [$job, 'Integer']];
       $query = "select r.contact_id as pid, m.study_id as study_id, mj.mailing_id as mailing_id
                 from civicrm_mailing_job mj, civicrm_nbr_mailing m, civicrm_mailing_recipients r
@@ -30,20 +31,12 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
         }
       }
     }
-    else {                                                                                          # non-bulk email
+    else {                                                                                          # NOT BULK EMAIL
       if (!is_array($pids)){
         $pids = [$pids];
       }
       foreach ($pids as $pid) {                                                                     # for each pid
-        $caseId = $this->getParticipationCaseId($pid);                           #  get case id from url ..
-        if (!$caseId) {                                                                             #  or $values array ..
-          if (isset($values[$pid]['case_id'])) {
-            $caseId = $values[$pid]['case_id'];
-          }
-          elseif (isset($values[$pid]['case.id'])) {
-            $caseId = $values[$pid]['case.id'];
-          }
-        }
+        $caseId = $this->getParticipationCaseId($pid, $context, $values);
         if ($caseId) {
           if (isset($tokens['NBR_Stage_2'])) {                                                      #  set stage2 tokens for pid
             $this->setStage2TokenValues($values, $pid, $caseId);
@@ -51,22 +44,21 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
           if (isset($tokens['NBR_Contact'])) {                                                      # set contact tokens for pid
             $this->setNbrContactTokenValues($values, $pid);
           }
-        } # if case id
+        }
+      }
+    }
 
-      } # for each
-
-    } # if empty job
-
-  } # funct
+  }
   /**
    * Method to get case id either from request or from session
    *
    * @param $contactId
    * @param $context
+   * @param $values
    * @return false|int|mixed|string
    * @throws CRM_Core_Exception
    */
-  private function getParticipationCaseId($contactId, $context) {
+  private function getParticipationCaseId($contactId, $context, $values) {
     // if context = CRM_Activity_BAO_Activity potentially email
     if ($context == "CRM_Contact_Form_Task_PDFLetterCommon") {
       // if so try to retrieve case_id from session
@@ -78,14 +70,18 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
         }
       }
     }
-    // in all other situations, check if the case_id is in the request
+    // in all other situations, check if the case_id is in the request or values
     $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");
     if ($caseId) {
       return $caseId;
     }
+    if (isset($values[$contactId]['case_id'])) {
+      return $values[$contactId]['case_id'];
+    } elseif (isset($values[$contactId]['case.id'])) {
+      return $values[$contactId]['case.id'];
+    }
     return FALSE;
   }
-
   public function setNbrContactTokenValues(&$values, $pid) {
     $params = [1 => [$pid, 'Integer']];
     $query = "select nva_participant_id, nva_bioresource_id from civicrm_value_nihr_volunteer_ids where entity_id = %1";
