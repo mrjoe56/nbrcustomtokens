@@ -10,30 +10,9 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
   /** Method to process the token values hook */
 
   public function tokenValues(&$values, $pids, $job, $tokens, $context) {
-
-    Civi::log()->debug('');
-    Civi::log()->debug('-------- tokenvalues call --------');
-    Civi::log()->debug('PARAM $job : '.$job);
-    Civi::log()->debug('PARAM $context : '.$context);
-    Civi::log()->debug('PARAM $pids : '.implode('~',$pids));
-    Civi::log()->debug('PARAM $tokens - ');
-    foreach ($tokens as $key => $value) {
-      Civi::log()->debug('  token key : '.$key.'  token values : '.implode('~',$value));
-    }
-    Civi::log()->debug('PARAM &$values - ');
-    foreach ($values as $key => $value) {
-      if (is_array($value)) {
-        Civi::log()->debug('  $values key '.$key.' (Array) : ');
-        Civi::log()->debug('  $values value : '.implode('~',$value));
-      }
-      else {
-        Civi::log()->debug('  $values key : ' . $key . '  $values value : ' . $value);
-      }
-    }
-
     if (!empty($job)) {                                                                              # job id exists so bulk mail
       $params = [1 => [$job, 'Integer']];
-      $query = "select r.contact_id as pid, m.study_id as study_id, MJ.mailing_id as mailing_id
+      $query = "select r.contact_id as pid, m.study_id as study_id, mj.mailing_id as mailing_id
                 from civicrm_mailing_job mj, civicrm_nbr_mailing m, civicrm_mailing_recipients r
                 where m.mailing_id = mj.mailing_id and m.mailing_id = r.mailing_id
                 and mj.id = %1";
@@ -51,10 +30,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
       }
     }
     else {                                                                                          # non-bulk email
-      Civi::log()->debug('not a bulk mailing');
-
       if (!is_array($pids)){$pids = [$pids];}
-
       foreach ($pids as $pid) {                                                                     # for each pid
         $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");                            #  get case id from url ..
         if (!$caseId) {                                                                             #  or $values array ..
@@ -65,8 +41,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
             $caseId = $values[$pid]['case.id'];
           }
         }
-        Civi::log()->debug('$caseId : '.$caseId);
-
         if ($caseId) {
           if (isset($tokens['NBR_Stage_2'])) {                                                      #  set stage2 tokens for pid
             $this->setStage2TokenValues($values, $pid, $caseId);
@@ -80,22 +54,9 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
 
     } # if empty job
 
-    Civi::log()->debug('ON EXIT &$values Array : ');
-    foreach ($values as $key => $value) {
-      if (is_array($value)) {
-        Civi::log()->debug('$key : '.$key.'  - Array : ');
-        Civi::log()->debug('$vals : '.implode('~',$value));
-      }
-      else {
-        Civi::log()->debug('$key : ' . $key . '  $value : ' . $value);
-      }
-    }
-    Civi::log()->debug('----------------------------');
-
   } # funct
 
   public function setNbrContactTokenValues(&$values, $pid) {
-    Civi::log()->debug('setNbrContactTokenValues called for $pid : '.$pid);
     $params = [1 => [$pid, 'Integer']];
     $query = "select nva_participant_id, nva_bioresource_id from civicrm_value_nihr_volunteer_ids where entity_id = %1";
     $dao = CRM_Core_DAO::executeQuery($query, $params);
@@ -106,7 +67,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
   }
 
   public function setStage2TokenValues(&$values, $pid, $caseId){
-    Civi::log()->debug('setStage2TokenValues called for $pid : '.$pid.'  $caseId : '.$caseId);
     $params = [1 => [$pid, 'Integer'], 2 => [$caseId, 'Integer'],];
     $query = 'select sd.nsd_study_number as study_number, sd.nsd_study_long_name as study_long_name, camp.name as study_short_name, rcont.display_name as researcher,
             radd.street_address as r_addr0, radd.supplemental_address_1 as r_addr1, radd.supplemental_address_2 as r_addr2, radd.supplemental_address_3 as r_addr3,
