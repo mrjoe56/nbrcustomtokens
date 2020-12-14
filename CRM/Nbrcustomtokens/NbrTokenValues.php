@@ -36,7 +36,19 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
         $pids = [$pids];
       }
       foreach ($pids as $pid) {                                                                     # for each pid
-        $caseId = $this->getParticipationCaseId($pid, $context, $values);
+        if ($context=='CRM_Contact_Form_Task_PDFLetterCommon') {                                    #  if context is 'print/merge document'
+          $caseId = CRM_Nihrbackbone_NbrVolunteerCase::getActiveParticipationCaseId($_REQUEST['study_id'], $pid);
+        }                                                                                           #   get case id from request.study_id
+        else {                                                                                      #  else
+          $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");                          #   get case id from url ..
+          if (!$caseId) {                                                                           #   or $values array ..
+            if (isset($values[$pid]['case_id'])) {
+              $caseId = $values[$pid]['case_id'];
+            } elseif (isset($values[$pid]['case.id'])) {
+              $caseId = $values[$pid]['case.id'];
+            }
+          }
+        }
         if ($caseId) {
           if (isset($tokens['NBR_Stage_2'])) {                                                      #  set stage2 tokens for pid
             $this->setStage2TokenValues($values, $pid, $caseId);
@@ -49,39 +61,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
     }
 
   }
-  /**
-   * Method to get case id either from request or from session
-   *
-   * @param $contactId
-   * @param $context
-   * @param $values
-   * @return false|int|mixed|string
-   * @throws CRM_Core_Exception
-   */
-  private function getParticipationCaseId($contactId, $context, $values) {
-    // if context = CRM_Activity_BAO_Activity potentially email
-    if ($context == "CRM_Contact_Form_Task_PDFLetterCommon") {
-      // if so try to retrieve case_id from session
-      $session = CRM_Core_Session::singleton();
-      if (isset($session->nbr_email_pdf_case_ids)) {
-        $emailCaseIds = $session->nbr_email_pdf_case_ids;
-        if (isset($emailCaseIds[$contactId])) {
-          return (int) $emailCaseIds[$contactId];
-        }
-      }
-    }
-    // in all other situations, check if the case_id is in the request or values
-    $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");
-    if ($caseId) {
-      return $caseId;
-    }
-    if (isset($values[$contactId]['case_id'])) {
-      return $values[$contactId]['case_id'];
-    } elseif (isset($values[$contactId]['case.id'])) {
-      return $values[$contactId]['case.id'];
-    }
-    return FALSE;
-  }
+
   public function setNbrContactTokenValues(&$values, $pid) {
     $params = [1 => [$pid, 'Integer']];
     $query = "select nva_participant_id, nva_bioresource_id from civicrm_value_nihr_volunteer_ids where entity_id = %1";
