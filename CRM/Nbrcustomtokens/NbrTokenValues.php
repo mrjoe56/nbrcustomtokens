@@ -60,7 +60,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
    */
   private function getParticipationCaseId($contactId, $context, $values) {
     // if context = CRM_Activity_BAO_Activity potentially email
-    if ($context == "CRM_Contact_Form_Task_PDFLetterCommon") {
+    if ($context == "CRM_Contact_Form_Task_PDFLetterCommon" || $context == "CRM_Activity_BAO_Activity") {
       // if so try to retrieve case_id from session
       $session = CRM_Core_Session::singleton();
       if (isset($session->nbr_email_pdf_case_ids)) {
