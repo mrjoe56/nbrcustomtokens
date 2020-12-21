@@ -7,11 +7,14 @@ use CRM_Nbrcustomtokens_ExtensionUtil as E;
  * updated 02/11/20
  */
 
-class CRM_Nbrcustomtokens_NbrTokenValues {
+class CRM_Nbrcustomtokens_NbrTokenValues
+{
   /** Method to process the token values hook */
 
-  public function tokenValues(&$values, $pids, $job, $tokens, $context) {
-    if (!empty($job)) {                                                                              # job id exists so bulk mail
+  public function tokenValues(&$values, $pids, $job, $tokens, $context)
+  {
+
+    if (!empty($job)) {                                                                              # BULK EMAIL (event queue job id exists)
       $params = [1 => [$job, 'Integer']];
       $query = "select r.contact_id as pid, m.study_id as study_id, mj.mailing_id as mailing_id
                 from civicrm_mailing_job mj, civicrm_nbr_mailing m, civicrm_mailing_recipients r
@@ -20,7 +23,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
       $dao = CRM_Core_DAO::executeQuery($query, $params);
       while ($dao->fetch()) {                                                                       # for each pid
         $study_id = $dao->study_id;                                                                 #  get study_id
-        $pid = $dao-> pid;
+        $pid = $dao->pid;
         $caseId = CRM_Nihrbackbone_NbrVolunteerCase::getActiveParticipationCaseId($study_id, $pid); #  and case_id
         if (isset($tokens['NBR_Stage_2'])) {                                                        #  set stage2 tokens for pid
           $this->setStage2TokenValues($values, $pid, $caseId);
@@ -29,21 +32,12 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
           $this->setNbrContactTokenValues($values, $pid);                                           # set contact tokens for pid
         }
       }
-    }
-    else {                                                                                          # non-bulk email
-      if (!is_array($pids)){
+    } else {                                                                                          # NOT BULK EMAIL
+      if (!is_array($pids)) {
         $pids = [$pids];
       }
       foreach ($pids as $pid) {                                                                     # for each pid
-        $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");                            #  get case id from url ..
-        if (!$caseId) {                                                                             #  or $values array ..
-          if (isset($values[$pid]['case_id'])) {
-            $caseId = $values[$pid]['case_id'];
-          }
-          elseif (isset($values[$pid]['case.id'])) {
-            $caseId = $values[$pid]['case.id'];
-          }
-        }
+        $caseId = $this->getParticipationCaseId($pid, $context, $values);
         if ($caseId) {
           if (isset($tokens['NBR_Stage_2'])) {                                                      #  set stage2 tokens for pid
             $this->setStage2TokenValues($values, $pid, $caseId);
@@ -54,7 +48,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
         }
       }
     }
-
   }
 
   public function setNbrContactTokenValues(&$values, $pid) {
@@ -67,7 +60,8 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
     }
   }
 
-  public function setStage2TokenValues(&$values, $pid, $caseId){
+  public function setStage2TokenValues(&$values, $pid, $caseId)
+  {
     $params = [1 => [$pid, 'Integer'], 2 => [$caseId, 'Integer'],];
     $query = "select sd.nsd_study_number as study_number, sd.nsd_study_long_name as study_long_name, camp.name as study_short_name, rcont.display_name as researcher,
             radd.street_address as r_addr0, radd.supplemental_address_1 as r_addr1, radd.supplemental_address_2 as r_addr2, radd.supplemental_address_3 as r_addr3,
@@ -102,6 +96,39 @@ class CRM_Nbrcustomtokens_NbrTokenValues {
       $values[$pid]['NBR_Stage_2.study_lay_summary'] = $dao->study_summary;
       $values[$pid]['NBR_Stage_2.study_participant_id'] = $dao->study_participant_id;
     }
+  }
+  /**
+   * Method to get case id either from request or from session
+   *
+   * @param $contactId
+   * @param $context
+   * @param $values
+   * @return false|int|mixed|string
+   * @throws CRM_Core_Exception
+   */
+  private function getParticipationCaseId($contactId, $context, $values) {
+    // if context = email or PDF
+    if ($context == "CRM_Contact_Form_Task_PDFLetterCommon" || $context == "CRM_Activity_BAO_Activity") {
+      // if so try to retrieve case_id from session
+      $session = CRM_Core_Session::singleton();
+      if (isset($session->nbr_email_pdf_case_ids)) {
+        $emailCaseIds = $session->nbr_email_pdf_case_ids;
+        if (isset($emailCaseIds[$contactId])) {
+          return (int) $emailCaseIds[$contactId];
+        }
+      }
+    }
+    // in all other situations, check if the case_id is in the request or values
+    $caseId = CRM_Utils_Request::retrieveValue("caseid", "Integer");
+    if ($caseId) {
+      return $caseId;
+    }
+    if (isset($values[$contactId]['case_id'])) {
+      return $values[$contactId]['case_id'];
+    } elseif (isset($values[$contactId]['case.id'])) {
+      return $values[$contactId]['case.id'];
+    }
+    return FALSE;
   }
 
 }
