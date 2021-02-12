@@ -13,7 +13,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues
 
   public function tokenValues(&$values, $pids, $job, $tokens, $context)
   {
-
     if (!empty($job)) {                                                                              # BULK EMAIL (event queue job id exists)
       $params = [1 => [$job, 'Integer']];
       $query = "select r.contact_id as pid, m.study_id as study_id, mj.mailing_id as mailing_id
@@ -76,8 +75,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues
             left join civicrm_contact pcont on sd.nsd_principal_investigator = pcont.id
             left join civicrm_address radd on sd.nsd_researcher = radd.contact_id
             left join civicrm_email email on radd.contact_id = email.contact_id
-            where coalesce(pd.nvpd_study_participant_id, '') != ''
-            and cc.contact_id = %1 and cc.case_id = %2 and cas.is_deleted = 0 limit 1";
+            where cc.contact_id = %1 and cc.case_id = %2 and cas.is_deleted = 0 limit 1";
     $dao = CRM_Core_DAO::executeQuery($query, $params);
     if ($dao->fetch()) {
       $values[$pid]['NBR_Stage_2.study_number'] = $dao->study_number;
