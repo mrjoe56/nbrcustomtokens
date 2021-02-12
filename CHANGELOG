@@ -1,6 +1,7 @@
+•	Initial version – issue 6445 add Stage 2 tokens
 
 Version 1.1
-•	Initial version – Stage 2 Study and NBR contact tokens
+•	issue 6892 - Stage 2 tokens for bulk email
 
 Version 1.2
 •	issue 7276 - remove study_participation_id from token select criteria
