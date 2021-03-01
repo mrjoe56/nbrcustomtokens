@@ -23,6 +23,8 @@ class CRM_Nbrcustomtokens_NbrTokenValues
       while ($dao->fetch()) {                                                                       # for each pid
         $study_id = $dao->study_id;                                                                 #  get study_id
         $pid = $dao->pid;
+          // issue 7727 - safety catch for contact custom tokens: https://issues.civicoop.org/issues/7727
+        $this->safetyCatch($pid, $tokens, $values);
         $caseId = CRM_Nihrbackbone_NbrVolunteerCase::getActiveParticipationCaseId($study_id, $pid); #  and case_id
         if (isset($tokens['NBR_Stage_2'])) {                                                        #  set stage2 tokens for pid
           $this->setStage2TokenValues($values, $pid, $caseId);
@@ -36,6 +38,7 @@ class CRM_Nbrcustomtokens_NbrTokenValues
         $pids = [$pids];
       }
       foreach ($pids as $pid) {                                                                     # for each pid
+        $this->safetyCatch($pid, $tokens, $values);
         $caseId = $this->getParticipationCaseId($pid, $context, $values);
         if ($caseId) {
           if (isset($tokens['NBR_Stage_2'])) {                                                      #  set stage2 tokens for pid
@@ -127,6 +130,39 @@ class CRM_Nbrcustomtokens_NbrTokenValues
       return $values[$contactId]['case.id'];
     }
     return FALSE;
+  }
+
+  /**
+   * Method to check if there are any custom tokens and if so, if they have data. If not, try
+   * to add data now
+   *
+   * @param int $contactId
+   * @param array $tokens
+   * @param array $values
+   * @author Erik Hommel <erik.hommel@civicoop.org>
+   * @link https://issues.civicoop.org/issues/7727
+   */
+  private function safetyCatch(int $contactId, $tokens, &$values) {
+    // only if any custom fields in contact tokens
+    $hasCustomTokens = FALSE;
+    $customTokens = [];
+    if (isset($tokens['contact'])) {
+      foreach ($tokens['contact'] as $key) {
+        if (strpos($key, "custom_") !== FALSE) {
+          $hasCustomTokens = TRUE;
+          $customTokens[] = $key;
+        }
+      }
+    }
+    if ($hasCustomTokens) {
+      foreach ($customTokens as $customToken) {
+        if (!isset($values[$contactId][$customToken]) || empty($values[$contactId][$customToken])) {
+          $customField = new CRM_Nbrcustomtokens_CustomField($customToken, $contactId);
+          $customField->initialize();
+          $values[$contactId][$customToken] = $customField->getValue();
+        }
+      }
+    }
   }
 
 }
