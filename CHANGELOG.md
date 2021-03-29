@@ -1,3 +1,6 @@
+## Version 1.4
+* issue 7875: error on send email less than 50
+
 ## Version 1.3
 * issue 7271: use campaign title and not campaign name for study short name
 * issue 7727: build safety catch for contact custom fields

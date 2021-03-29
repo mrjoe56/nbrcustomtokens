@@ -64,28 +64,30 @@ class CRM_Nbrcustomtokens_CustomField {
    * @return mixed
    */
   public function getValue() {
-    // generate query
-    $query = "SELECT " . $this->_columnName . " FROM " . $this->_customGroupTableName . " WHERE entity_id = %1";
-    $value = CRM_Core_DAO::singleValueQuery($query, [1 => [$this->_contactId, "Integer"]]);
-    if ($value) {
-      // if required, retrieve option value label
-      if ($this->_optionGroupId) {
-        try {
-          $optionValues = \Civi\Api4\OptionValue::get()
-            ->addSelect('label')
-            ->addWhere('option_group_id', '=', $this->_optionGroupId)
-            ->addWhere('value', '=', $value)
-            ->setLimit(1)
-            ->execute();
-          $found = $optionValues->first();
-          if (isset($found['label'])) {
-            $value = $found['label'];
+    if (!empty($this->_columnName)) {
+      // generate query
+      $query = "SELECT " . $this->_columnName . " FROM " . $this->_customGroupTableName . " WHERE entity_id = %1";
+      $value = CRM_Core_DAO::singleValueQuery($query, [1 => [$this->_contactId, "Integer"]]);
+      if ($value) {
+        // if required, retrieve option value label
+        if ($this->_optionGroupId) {
+          try {
+            $optionValues = \Civi\Api4\OptionValue::get()
+              ->addSelect('label')
+              ->addWhere('option_group_id', '=', $this->_optionGroupId)
+              ->addWhere('value', '=', $value)
+              ->setLimit(1)
+              ->execute();
+            $found = $optionValues->first();
+            if (isset($found['label'])) {
+              $value = $found['label'];
+            }
+          }
+          catch (API_Exception $ex) {
           }
         }
-        catch (API_Exception $ex) {
-        }
+        return $value;
       }
-      return $value;
     }
     return FALSE;
   }

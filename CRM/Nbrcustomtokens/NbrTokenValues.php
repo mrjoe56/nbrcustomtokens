@@ -159,7 +159,10 @@ class CRM_Nbrcustomtokens_NbrTokenValues
         if (!isset($values[$contactId][$customToken]) || empty($values[$contactId][$customToken])) {
           $customField = new CRM_Nbrcustomtokens_CustomField($customToken, $contactId);
           $customField->initialize();
-          $values[$contactId][$customToken] = $customField->getValue();
+          $customValue = $customField->getValue();
+          if ($customValue) {
+            $values[$contactId][$customToken] = $customField->getValue();
+          }
         }
       }
     }
