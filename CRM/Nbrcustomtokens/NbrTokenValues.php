@@ -29,9 +29,6 @@ class CRM_Nbrcustomtokens_NbrTokenValues
         if (isset($tokens['NBR_Stage_2'])) {                                                        #  set stage2 tokens for pid
           $this->setStage2TokenValues($values, $pid, $caseId);
         }
-        if (isset($tokens['NBR_Contact'])) {
-          $this->setNbrContactTokenValues($values, $pid);                                           # set contact tokens for pid
-        }
       }
     } else {                                                                                          # NOT BULK EMAIL
       if (!is_array($pids)) {
@@ -44,23 +41,11 @@ class CRM_Nbrcustomtokens_NbrTokenValues
           if (isset($tokens['NBR_Stage_2'])) {                                                      #  set stage2 tokens for pid
             $this->setStage2TokenValues($values, $pid, $caseId);
           }
-          if (isset($tokens['NBR_Contact'])) {                                                      # set contact tokens for pid
-            $this->setNbrContactTokenValues($values, $pid);
-          }
         }
       }
     }
   }
 
-  public function setNbrContactTokenValues(&$values, $pid) {
-    $params = [1 => [$pid, 'Integer']];
-    $query = "select nva_participant_id, nva_bioresource_id from civicrm_value_nihr_volunteer_ids where entity_id = %1";
-    $dao = CRM_Core_DAO::executeQuery($query, $params);
-    if ($dao->fetch()) {
-      $values[$pid]['NBR_Contact.participant_id'] = $dao->nva_participant_id;
-      $values[$pid]['NBR_Contact.bioresource_id'] = $dao->nva_bioresource_id;
-    }
-  }
 
   public function setStage2TokenValues(&$values, $pid, $caseId)
   {
