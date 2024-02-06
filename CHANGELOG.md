@@ -1,3 +1,7 @@
+
+## Version 1.5
+* issue 7875:Removed Nbr_Contact fields as these fields are already set incustomfield (https://www.wrike.com/open.htm?id=961765057)
+
 ## Version 1.4
 * issue 7875: error on send email less than 50
 
